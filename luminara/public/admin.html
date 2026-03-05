@@ -177,6 +177,18 @@
     <div class="nav-item" onclick="showSection('orders',this,'delivered')">
       <span class="nav-icon">✦</span> Delivered
     </div>
+    <div class="nav-section" style="margin-top:16px;">Engagement</div>
+    <div class="nav-item" onclick="showSection('reviews',this)">
+      <span class="nav-icon">★</span> Reviews
+      <span class="nav-badge" id="reviewsBadge" style="display:none">0</span>
+    </div>
+    <div class="nav-item" onclick="showSection('messages',this)">
+      <span class="nav-icon">✉</span> Messages
+      <span class="nav-badge" id="messagesBadge" style="display:none">0</span>
+    </div>
+    <div class="nav-item" onclick="showSection('newsletter',this)">
+      <span class="nav-icon">◎</span> Newsletter
+    </div>
   </nav>
   <div class="sidebar-footer">
     <div>Luminara Glass Works</div>
@@ -269,6 +281,65 @@
       </div>
     </div>
 
+    <!-- Reviews -->
+    <div id="section-reviews" style="display:none">
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">Reviews</div>
+          <div class="table-count" id="reviewsCount">—</div>
+        </div>
+        <div id="reviewsBody" style="padding:40px 28px;color:var(--muted);font-size:0.85rem;">
+          <div class="dots"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div id="section-messages" style="display:none">
+      <div class="stats-grid" style="grid-template-columns:repeat(2,1fr);max-width:600px;">
+        <div class="stat-card" style="--accent:var(--confirmed)">
+          <div class="stat-label">Contact Messages</div>
+          <div class="stat-value" id="statMessages">—</div>
+          <div class="stat-sub">Total received</div>
+          <div class="stat-icon">✉</div>
+        </div>
+        <div class="stat-card" style="--accent:var(--shipped)">
+          <div class="stat-label">Pending Reviews</div>
+          <div class="stat-value" id="statPendingReviews">—</div>
+          <div class="stat-sub">Awaiting moderation</div>
+          <div class="stat-icon">★</div>
+        </div>
+      </div>
+      <div class="widget" style="margin-top:16px;max-width:600px;">
+        <div class="widget-title">Contact Messages</div>
+        <p style="color:var(--muted);font-size:0.82rem;line-height:1.7;">
+          Contact form submissions are stored in the database. The count above reflects
+          all messages received. Full message management (read/reply/delete) can be
+          added when a <code style="font-size:0.78rem;color:var(--gold)">/api/contacts</code> endpoint is available.
+        </p>
+      </div>
+    </div>
+
+    <!-- Newsletter -->
+    <div id="section-newsletter" style="display:none">
+      <div class="stats-grid" style="grid-template-columns:repeat(2,1fr);max-width:600px;">
+        <div class="stat-card" style="--accent:var(--gold)">
+          <div class="stat-label">Newsletter Subscribers</div>
+          <div class="stat-value" id="statSubscribers">—</div>
+          <div class="stat-sub">Total subscribers</div>
+          <div class="stat-icon">◎</div>
+        </div>
+      </div>
+      <div class="widget" style="margin-top:16px;max-width:600px;">
+        <div class="widget-title">Newsletter Subscribers</div>
+        <p style="color:var(--muted);font-size:0.82rem;line-height:1.7;">
+          Subscriber count is pulled from <code style="font-size:0.78rem;color:var(--gold)">/api/stats</code>.
+          A full subscriber list and email-blast feature can be added when a
+          <code style="font-size:0.78rem;color:var(--gold)">/api/newsletter/subscribers</code> endpoint is available.
+        </p>
+      </div>
+    </div>
+
   </div>
 </main>
 
@@ -292,14 +363,26 @@
 <script>
   let allOrders=[], activeFilter='';
 
+  const ALL_SECTIONS = ['dashboard','orders','reviews','messages','newsletter'];
+  const SECTION_TITLES = {
+    dashboard: 'Dashboard <span>Overview</span>',
+    orders:    'Orders <span>Management</span>',
+    reviews:   'Reviews <span>Moderation</span>',
+    messages:  'Messages <span>Contact</span>',
+    newsletter:'Newsletter <span>Subscribers</span>'
+  };
+
   function showSection(section, el, filter=''){
-    document.getElementById('section-dashboard').style.display = section==='dashboard' ? '' : 'none';
-    document.getElementById('section-orders').style.display    = section==='orders'    ? '' : 'none';
+    ALL_SECTIONS.forEach(s=>{
+      const el2=document.getElementById('section-'+s);
+      if(el2) el2.style.display = s===section ? '' : 'none';
+    });
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
     el.classList.add('active');
-    const titles={dashboard:'Dashboard <span>Overview</span>', orders:'Orders <span>Management</span>'};
-    document.getElementById('pageTitle').innerHTML = titles[section];
+    document.getElementById('pageTitle').innerHTML = SECTION_TITLES[section] || section;
     if(section==='orders'){ activeFilter=filter; applyFilters(); }
+    if(section==='reviews'){ loadReviews(); }
+    if(section==='messages'||section==='newsletter'){ loadEngagementStats(); }
   }
 
   function setFilter(btn,status){
@@ -319,8 +402,60 @@
   function applyFilters(){ filterOrders(); }
 
   async function loadAll(){
-    loadStats(); loadOrders();
+    loadStats(); loadOrders(); loadEngagementStats();
     document.getElementById('lastUpdated').textContent='Updated '+new Date().toLocaleTimeString();
+  }
+
+  async function loadEngagementStats(){
+    try{
+      const data=await fetch('/api/stats').then(r=>r.json());
+      if(!data.success) return;
+      const s=data.stats;
+      const contactCount = s.contact_messages ?? s.contacts ?? '—';
+      const subscriberCount = s.newsletter_subscribers ?? s.subscribers ?? '—';
+      const pendingReviews = s.pending_reviews ?? '—';
+
+      const el1=document.getElementById('statMessages');
+      const el2=document.getElementById('statSubscribers');
+      const el3=document.getElementById('statPendingReviews');
+      if(el1) el1.textContent = contactCount;
+      if(el2) el2.textContent = subscriberCount;
+      if(el3) el3.textContent = pendingReviews;
+
+      // Update sidebar badges
+      const mb=document.getElementById('messagesBadge');
+      if(mb && contactCount!=='—' && parseInt(contactCount)>0){
+        mb.textContent=contactCount; mb.style.display='';
+      }
+      const rb=document.getElementById('reviewsBadge');
+      if(rb && pendingReviews!=='—' && parseInt(pendingReviews)>0){
+        rb.textContent=pendingReviews; rb.style.display='';
+      }
+    }catch(e){console.error('engagementStats:',e);}
+  }
+
+  async function loadReviews(){
+    const body=document.getElementById('reviewsBody');
+    const count=document.getElementById('reviewsCount');
+    if(!body) return;
+    body.innerHTML='<div class="dots"><span></span><span></span><span></span></div>';
+    try{
+      const data=await fetch('/api/stats').then(r=>r.json());
+      const pendingReviews = data.success ? (data.stats.pending_reviews ?? null) : null;
+      const pendingText = pendingReviews !== null ? `<strong style="color:var(--gold-light)">${pendingReviews}</strong> pending` : 'unknown pending';
+      if(count) count.textContent = pendingReviews !== null ? `${pendingReviews} pending` : '';
+      body.innerHTML=`
+        <div style="padding:16px 0;">
+          <div style="font-size:1rem;color:var(--gold-light);margin-bottom:12px;">📝 ${pendingText} review${pendingReviews!==1?'s':''}</div>
+          <p style="color:var(--muted);font-size:0.83rem;line-height:1.8;max-width:540px;">
+            Reviews are managed per-product — visit individual product pages to see approved reviews.<br>
+            A dedicated review-moderation endpoint (<code style="color:var(--gold)">/api/reviews</code>) will unlock
+            full approve / reject functionality here when it becomes available.
+          </p>
+        </div>`;
+    }catch(e){
+      body.innerHTML=`<div style="color:var(--cancelled);font-size:0.82rem;">Failed to load review stats: ${e.message}</div>`;
+    }
   }
 
   async function loadStats(){
