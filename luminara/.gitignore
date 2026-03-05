@@ -1,0 +1,9 @@
+### `.gitignore`
+```
+node_modules/
+.env
+luminara.db
+.DS_Store
+npm-debug.log
+```
+.vercel
