@@ -4,391 +4,468 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Luminara Glass — Artisan Glass Works</title>
+<meta name="description" content="Discover handcrafted glass artworks by Luminara. From vases to sculptures, every piece tells a story.">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/shared.css">
 <style>
-  :root {
-    --gold:#c9a96e; --gold-light:#e8d5a3;
-    --dark:#0a0a0f; --dark2:#111118;
-    --text:#e8e4de; --muted:#8a8680;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--dark); color:var(--text); font-family:'Jost',sans-serif; font-weight:300; overflow-x:hidden; cursor:none; }
+/* Hero */
+.hero { position:relative; min-height:100vh; display:flex; align-items:center; padding:0 60px; overflow:hidden; z-index:1; }
+.hero-orb { position:absolute; right:-100px; top:50%; transform:translateY(-50%); width:700px; height:700px; border-radius:50%; background:radial-gradient(ellipse at 30% 30%, rgba(168,200,232,0.15) 0%, transparent 50%), radial-gradient(ellipse at 70% 70%, rgba(201,169,110,0.08) 0%, transparent 50%); border:1px solid rgba(168,200,232,0.1); box-shadow:inset 0 0 100px rgba(168,200,232,0.05), 0 0 200px rgba(168,200,232,0.05); animation:float 8s ease-in-out infinite; }
+.hero-orb::before { content:''; position:absolute; top:8%; left:12%; width:30%; height:20%; background:linear-gradient(135deg,rgba(255,255,255,0.12),transparent); border-radius:50%; transform:rotate(-30deg); filter:blur(8px); animation:shimmerOrb 4s ease-in-out infinite alternate; }
+.hero-orb::after { content:''; position:absolute; bottom:15%; right:15%; width:20%; height:25%; background:linear-gradient(315deg,rgba(201,169,110,0.1),transparent); border-radius:50%; filter:blur(6px); animation:shimmerOrb 6s ease-in-out infinite alternate-reverse; }
+@keyframes shimmerOrb { 0%{opacity:0.5;transform:rotate(-30deg) scale(1)} 100%{opacity:1;transform:rotate(-25deg) scale(1.1)} }
+@keyframes float { 0%,100%{transform:translateY(-50%) translateX(0)} 50%{transform:translateY(-52%) translateX(-15px)} }
+.particles { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+.particle { position:absolute; border-radius:50%; animation:particleFloat var(--dur, 8s) ease-in-out infinite; opacity:0; }
+@keyframes particleFloat { 0%,100%{transform:translateY(0) translateX(0);opacity:0} 20%{opacity:var(--max-opacity,0.4)} 80%{opacity:var(--max-opacity,0.4)} }
+.hero-content { max-width:580px; z-index:2; }
+.eyebrow { font-size:0.65rem; letter-spacing:0.4em; text-transform:uppercase; color:var(--gold); margin-bottom:24px; opacity:0; animation:fadeUp 1s 0.3s forwards; }
+.hero h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(3rem,6vw,5.5rem); font-weight:300; line-height:1.05; margin-bottom:28px; opacity:0; animation:fadeUp 1s 0.5s forwards; }
+.hero h1 em { font-style:italic; color:var(--gold-light); }
+.hero p.sub { font-size:0.95rem; line-height:1.8; color:var(--muted); max-width:420px; margin-bottom:48px; opacity:0; animation:fadeUp 1s 0.7s forwards; }
+.hero-cta { display:flex; gap:20px; flex-wrap:wrap; opacity:0; animation:fadeUp 1s 0.9s forwards; }
+.scroll-indicator { position:absolute; bottom:40px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; opacity:0; animation:fadeUp 1s 1.2s forwards; z-index:2; }
+.scroll-indicator span { font-size:0.6rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--muted); }
+.scroll-chevron { width:20px; height:20px; border-right:1px solid var(--gold); border-bottom:1px solid var(--gold); transform:rotate(45deg); animation:chevronBounce 1.5s ease-in-out infinite; }
+@keyframes chevronBounce { 0%,100%{transform:rotate(45deg) translateY(0)} 50%{transform:rotate(45deg) translateY(6px)} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
 
-  .cursor { position:fixed; width:8px; height:8px; background:var(--gold); border-radius:50%; pointer-events:none; z-index:9999; transition:transform 0.15s; transform:translate(-50%,-50%); }
-  .cursor-ring { position:fixed; width:32px; height:32px; border:1px solid rgba(201,169,110,0.4); border-radius:50%; pointer-events:none; z-index:9998; transition:all 0.25s; transform:translate(-50%,-50%); }
+/* Process Section */
+.process-section { padding:0 60px 120px; position:relative; z-index:1; }
+.process-timeline { display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin-top:60px; position:relative; }
+.process-timeline::before { content:''; position:absolute; top:48px; left:12.5%; right:12.5%; height:1px; background:linear-gradient(to right, transparent, rgba(201,169,110,0.3), rgba(201,169,110,0.3), rgba(201,169,110,0.3), transparent); }
+.process-step { text-align:center; padding:0 20px; }
+.step-icon { width:96px; height:96px; border-radius:50%; background:var(--dark2); border:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:2rem; margin:0 auto 24px; position:relative; z-index:1; transition:all 0.4s; }
+.process-step.visible .step-icon { border-color:rgba(201,169,110,0.3); background:rgba(201,169,110,0.05); }
+.step-num { position:absolute; top:-8px; right:-8px; width:24px; height:24px; background:var(--gold); color:var(--dark); font-size:0.65rem; font-weight:500; display:flex; align-items:center; justify-content:center; border-radius:50%; font-family:'Jost',sans-serif; }
+.step-title { font-family:'Cormorant Garamond',serif; font-size:1.2rem; font-weight:400; margin-bottom:12px; }
+.step-desc { font-size:0.8rem; line-height:1.7; color:var(--muted); }
 
-  body::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(168,200,232,0.04) 0%,transparent 60%),radial-gradient(ellipse 40% 60% at 80% 80%,rgba(201,169,110,0.04) 0%,transparent 60%); pointer-events:none; z-index:0; }
+/* Testimonials */
+.testimonials-section { padding:0 60px 120px; position:relative; z-index:1; }
+.testimonials-carousel { position:relative; overflow:hidden; }
+.testimonials-track { display:flex; transition:transform 0.6s cubic-bezier(0.4,0,0.2,1); }
+.testimonial-card { flex:0 0 100%; padding:0 80px; }
+.testimonial-inner { background:rgba(17,17,24,0.8); border:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(16px); padding:60px; position:relative; max-width:800px; margin:0 auto; }
+.testimonial-inner::before { content:'"'; position:absolute; top:-20px; left:40px; font-family:'Cormorant Garamond',serif; font-size:8rem; color:rgba(201,169,110,0.1); line-height:1; }
+.testimonial-stars { color:var(--gold); font-size:1rem; margin-bottom:24px; letter-spacing:4px; }
+.testimonial-text { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:300; font-style:italic; line-height:1.6; color:var(--text); margin-bottom:32px; }
+.testimonial-author { display:flex; align-items:center; gap:16px; }
+.author-avatar { width:48px; height:48px; border-radius:50%; background:rgba(201,169,110,0.1); border:1px solid rgba(201,169,110,0.2); display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
+.author-info .name { font-size:0.9rem; color:var(--text); margin-bottom:2px; }
+.author-info .product { font-size:0.72rem; color:var(--gold); letter-spacing:0.1em; }
+.carousel-dots { display:flex; justify-content:center; gap:8px; margin-top:32px; }
+.carousel-dot { width:6px; height:6px; border-radius:50%; background:rgba(201,169,110,0.3); border:none; cursor:none; transition:all 0.3s; padding:0; }
+.carousel-dot.active { background:var(--gold); width:24px; border-radius:3px; }
 
-  nav { position:fixed; top:0; left:0; right:0; z-index:100; padding:28px 60px; display:flex; justify-content:space-between; align-items:center; background:linear-gradient(to bottom,rgba(10,10,15,0.9),transparent); backdrop-filter:blur(2px); }
-  .logo { font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:300; letter-spacing:0.15em; color:var(--gold-light); }
-  .logo span { font-style:italic; color:var(--gold); }
-  nav ul { list-style:none; display:flex; gap:40px; }
-  nav ul a { color:var(--muted); text-decoration:none; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; transition:color 0.3s; }
-  nav ul a:hover { color:var(--gold-light); }
+/* Newsletter section */
+.newsletter-section { padding:0 60px 120px; position:relative; z-index:1; }
+.newsletter-panel { background:rgba(17,17,24,0.8); border:1px solid rgba(201,169,110,0.15); backdrop-filter:blur(20px); padding:80px; text-align:center; position:relative; overflow:hidden; }
+.newsletter-panel::before { content:''; position:absolute; top:-200px; left:50%; transform:translateX(-50%); width:600px; height:600px; border-radius:50%; background:radial-gradient(ellipse,rgba(201,169,110,0.04) 0%,transparent 70%); pointer-events:none; }
+.newsletter-panel h2 { font-family:'Cormorant Garamond',serif; font-size:2.5rem; font-weight:300; margin-bottom:16px; }
+.newsletter-panel p { color:var(--muted); font-size:0.9rem; margin-bottom:40px; }
+.newsletter-form { display:flex; gap:0; max-width:480px; margin:0 auto; }
+.newsletter-form input { flex:1; padding:16px 24px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-right:none; color:var(--text); font-family:'Jost',sans-serif; font-size:0.88rem; outline:none; transition:border-color 0.3s; }
+.newsletter-form input:focus { border-color:rgba(201,169,110,0.4); }
+.newsletter-form button { padding:16px 32px; background:var(--gold); color:var(--dark); border:none; font-family:'Jost',sans-serif; font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; cursor:none; transition:all 0.3s; white-space:nowrap; }
+.newsletter-form button:hover { background:var(--gold-light); }
 
-  .hero { position:relative; min-height:100vh; display:flex; align-items:center; padding:0 60px; overflow:hidden; z-index:1; }
-  .hero-orb { position:absolute; right:-100px; top:50%; transform:translateY(-50%); width:700px; height:700px; border-radius:50%; background:radial-gradient(ellipse at 30% 30%,rgba(168,200,232,0.15) 0%,transparent 50%),radial-gradient(ellipse at 70% 70%,rgba(201,169,110,0.08) 0%,transparent 50%); border:1px solid rgba(168,200,232,0.1); box-shadow:inset 0 0 100px rgba(168,200,232,0.05),0 0 200px rgba(168,200,232,0.05); animation:float 8s ease-in-out infinite; }
-  .hero-orb::before { content:''; position:absolute; top:8%; left:12%; width:30%; height:20%; background:linear-gradient(135deg,rgba(255,255,255,0.12),transparent); border-radius:50%; transform:rotate(-30deg); filter:blur(8px); }
-  @keyframes float { 0%,100%{transform:translateY(-50%) translateX(0)} 50%{transform:translateY(-52%) translateX(-15px)} }
+/* Categories grid */
+.categories-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:2px; margin-top:60px; }
+.category-card { background:var(--dark2); border:1px solid rgba(255,255,255,0.03); padding:40px 28px; text-align:center; cursor:none; transition:all 0.4s; text-decoration:none; display:block; position:relative; overflow:hidden; }
+.category-card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(201,169,110,0.06),transparent); opacity:0; transition:opacity 0.4s; }
+.category-card:hover::before { opacity:1; }
+.category-card:hover { border-color:rgba(201,169,110,0.2); transform:translateY(-6px); box-shadow:0 20px 40px rgba(0,0,0,0.3), 0 0 30px rgba(201,169,110,0.05); }
+.cat-icon { font-size:2.5rem; margin-bottom:16px; display:block; }
+.cat-name { font-family:'Cormorant Garamond',serif; font-size:1.2rem; font-weight:400; margin-bottom:8px; color:var(--text); }
+.cat-count { font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); }
 
-  .hero-content { max-width:580px; z-index:2; }
-  .eyebrow { font-size:0.65rem; letter-spacing:0.4em; text-transform:uppercase; color:var(--gold); margin-bottom:24px; opacity:0; animation:fadeUp 1s 0.3s forwards; }
-  .hero h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(3rem,6vw,5.5rem); font-weight:300; line-height:1.05; margin-bottom:28px; opacity:0; animation:fadeUp 1s 0.5s forwards; }
-  .hero h1 em { font-style:italic; color:var(--gold-light); }
-  .hero p.sub { font-size:0.95rem; line-height:1.8; color:var(--muted); max-width:420px; margin-bottom:48px; opacity:0; animation:fadeUp 1s 0.7s forwards; }
-  .hero-cta { display:flex; gap:20px; opacity:0; animation:fadeUp 1s 0.9s forwards; }
-  @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
-
-  .btn-primary { padding:14px 40px; background:var(--gold); color:var(--dark); border:none; font-family:'Jost',sans-serif; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; font-weight:400; cursor:none; transition:all 0.3s; text-decoration:none; display:inline-block; }
-  .btn-primary:hover { background:var(--gold-light); transform:translateY(-2px); box-shadow:0 20px 40px rgba(201,169,110,0.2); }
-  .btn-outline { padding:14px 40px; background:transparent; color:var(--text); border:1px solid rgba(232,228,222,0.2); font-family:'Jost',sans-serif; font-size:0.75rem; letter-spacing:0.2em; text-transform:uppercase; cursor:none; transition:all 0.3s; text-decoration:none; }
-  .btn-outline:hover { border-color:var(--gold); color:var(--gold-light); }
-
-  .divider { display:flex; align-items:center; gap:20px; padding:0 60px; margin:20px 0 80px; opacity:0.3; }
-  .div-line { flex:1; height:1px; background:linear-gradient(to right,transparent,var(--gold-light),transparent); }
-  .div-diamond { width:6px; height:6px; background:var(--gold); transform:rotate(45deg); }
-
-  .section { position:relative; z-index:1; padding:0 60px 120px; }
-  .section-header { text-align:center; margin-bottom:70px; }
-  .sec-eyebrow { font-size:0.65rem; letter-spacing:0.4em; text-transform:uppercase; color:var(--gold); margin-bottom:16px; }
-  .sec-title { font-family:'Cormorant Garamond',serif; font-size:clamp(2rem,4vw,3.5rem); font-weight:300; }
-
-  .products-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:2px; }
-  .product-card { position:relative; background:var(--dark2); padding:40px 32px; cursor:none; overflow:hidden; transition:all 0.4s; border:1px solid rgba(255,255,255,0.03); }
-  .product-card::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 0%,rgba(201,169,110,0.06) 0%,transparent 60%); opacity:0; transition:opacity 0.4s; }
-  .product-card:hover::before { opacity:1; }
-  .product-card:hover { border-color:rgba(201,169,110,0.15); transform:translateY(-4px); }
-  .product-icon { font-size:2.5rem; margin-bottom:24px; display:block; filter:drop-shadow(0 0 20px rgba(168,200,232,0.3)); }
-  .product-category { font-size:0.6rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
-  .product-name { font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:400; margin-bottom:12px; }
-  .product-desc { font-size:0.82rem; line-height:1.7; color:var(--muted); margin-bottom:28px; }
-  .product-price { font-family:'Cormorant Garamond',serif; font-size:1.3rem; color:var(--gold-light); margin-bottom:20px; }
-  .product-price span { font-family:'Jost',sans-serif; font-size:0.7rem; color:var(--muted); }
-  .add-btn { width:100%; padding:12px; background:transparent; border:1px solid rgba(201,169,110,0.3); color:var(--gold-light); font-family:'Jost',sans-serif; font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; cursor:none; transition:all 0.3s; position:relative; overflow:hidden; }
-  .add-btn::before { content:''; position:absolute; inset:0; background:var(--gold); transform:translateX(-100%); transition:transform 0.3s; z-index:-1; }
-  .add-btn:hover { color:var(--dark); border-color:var(--gold); }
-  .add-btn:hover::before { transform:translateX(0); }
-
-  .order-section { background:var(--dark2); margin:0 60px 120px; padding:80px; position:relative; z-index:1; border:1px solid rgba(255,255,255,0.04); overflow:hidden; }
-  .order-section::before { content:''; position:absolute; top:-100px; right:-100px; width:400px; height:400px; border-radius:50%; background:radial-gradient(ellipse,rgba(168,200,232,0.04) 0%,transparent 70%); }
-  .order-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
-  .order-intro h2 { font-family:'Cormorant Garamond',serif; font-size:3rem; font-weight:300; line-height:1.1; margin-bottom:24px; }
-  .order-intro h2 em { font-style:italic; color:var(--gold-light); }
-  .order-intro p { font-size:0.88rem; line-height:1.8; color:var(--muted); margin-bottom:40px; }
-  .perks { display:flex; flex-direction:column; gap:16px; }
-  .perk { display:flex; align-items:center; gap:16px; font-size:0.82rem; color:var(--muted); }
-  .perk-dot { width:6px; height:6px; background:var(--gold); border-radius:50%; flex-shrink:0; }
-
-  .form-group { margin-bottom:24px; }
-  label { display:block; font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
-  input,select,textarea { width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); color:var(--text); font-family:'Jost',sans-serif; font-size:0.88rem; font-weight:300; padding:14px 18px; outline:none; transition:border-color 0.3s; appearance:none; }
-  input:focus,select:focus,textarea:focus { border-color:rgba(201,169,110,0.4); background:rgba(201,169,110,0.03); }
-  select option { background:var(--dark2); }
-  textarea { resize:vertical; min-height:100px; }
-  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-
-  .order-summary { background:rgba(201,169,110,0.05); border:1px solid rgba(201,169,110,0.15); padding:24px; margin-bottom:24px; min-height:80px; }
-  .order-summary h4 { font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--gold); margin-bottom:12px; }
-  .order-item { display:flex; justify-content:space-between; font-size:0.82rem; color:var(--muted); padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
-  .order-item:last-child { border-bottom:none; }
-  .order-item .remove { color:rgba(200,80,80,0.6); cursor:none; font-size:0.7rem; margin-left:8px; transition:color 0.2s; }
-  .order-item .remove:hover { color:rgba(200,80,80,1); }
-  .empty-order { font-size:0.8rem; color:rgba(138,134,128,0.5); font-style:italic; text-align:center; padding:10px 0; }
-
-  .submit-btn { width:100%; padding:18px; background:var(--gold); color:var(--dark); border:none; font-family:'Jost',sans-serif; font-size:0.75rem; letter-spacing:0.25em; text-transform:uppercase; font-weight:500; cursor:none; transition:all 0.3s; }
-  .submit-btn:disabled { opacity:0.6; }
-  .submit-btn:not(:disabled):hover { background:var(--gold-light); box-shadow:0 20px 50px rgba(201,169,110,0.25); transform:translateY(-2px); }
-  .spinner { display:inline-block; width:14px; height:14px; border:2px solid rgba(10,10,15,0.3); border-top-color:var(--dark); border-radius:50%; animation:spin 0.6s linear infinite; vertical-align:middle; margin-right:8px; }
-  @keyframes spin { to{transform:rotate(360deg)} }
-
-  .toast { position:fixed; bottom:40px; right:40px; background:var(--dark2); border:1px solid rgba(201,169,110,0.3); padding:20px 32px; z-index:1000; transform:translateY(100px); opacity:0; transition:all 0.5s; display:flex; align-items:center; gap:16px; max-width:360px; }
-  .toast.show { transform:translateY(0); opacity:1; }
-  .toast.error { border-color:rgba(200,80,80,0.4); }
-  .toast-icon { color:var(--gold); font-size:1.2rem; }
-  .toast.error .toast-icon { color:#e05555; }
-  .toast-text strong { color:var(--gold-light); display:block; margin-bottom:4px; font-family:'Cormorant Garamond',serif; font-size:1rem; }
-  .toast-text span { font-size:0.82rem; color:var(--muted); }
-
-  footer { border-top:1px solid rgba(255,255,255,0.05); padding:60px; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1; }
-  footer p { font-size:0.75rem; color:var(--muted); }
-  .footer-contact { text-align:right; font-size:0.78rem; color:var(--muted); line-height:1.7; }
-  .footer-contact a { color:var(--gold); text-decoration:none; }
-
-  @media(max-width:900px){
-    nav{padding:20px 24px;} nav ul{display:none;}
-    .hero,.section{padding-left:24px;padding-right:24px;}
-    .hero-orb{width:400px;height:400px;right:-150px;opacity:0.5;}
-    .divider{padding:0 24px;}
-    .order-section{margin:0 24px 80px;padding:40px 24px;}
-    .order-grid{grid-template-columns:1fr;gap:50px;}
-    .form-row{grid-template-columns:1fr;}
-    footer{padding:40px 24px;flex-direction:column;gap:20px;text-align:center;}
-    .footer-contact{text-align:center;}
-    body{cursor:auto;} .cursor,.cursor-ring{display:none;}
-  }
+@media(max-width:768px){
+  .hero{padding:0 24px;padding-top:80px;}
+  .hero-orb{width:300px;height:300px;right:-80px;top:20%;opacity:0.5;}
+  .hero h1{font-size:2.8rem;}
+  .process-section{padding:0 24px 80px;}
+  .process-timeline{grid-template-columns:1fr 1fr;gap:40px;}
+  .process-timeline::before{display:none;}
+  .testimonials-section{padding:0 24px 80px;}
+  .testimonial-card{padding:0;}
+  .testimonial-inner{padding:40px 28px;}
+  .newsletter-section{padding:0 24px 80px;}
+  .newsletter-panel{padding:48px 28px;}
+  .newsletter-form{flex-direction:column;}
+  .newsletter-form input{border-right:1px solid rgba(255,255,255,0.1);}
+  .categories-grid{grid-template-columns:1fr 1fr;}
+}
 </style>
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
-
-<nav>
-  <div class="logo"><span>Luminara</span> Glass</div>
-  <ul>
-    <li><a href="#products">Collection</a></li>
-    <li><a href="#order">Order</a></li>
-    <li><a href="#footer">Contact</a></li>
+<!-- NAV -->
+<nav class="site-nav">
+  <a href="/" class="nav-logo">Luminara <span>Glass</span></a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/shop">Shop</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="/contact">Contact</a></li>
   </ul>
+  <div class="nav-right">
+    <button class="cart-btn" aria-label="Open cart">
+      🛒
+      <span class="cart-badge" style="display:none">0</span>
+    </button>
+    <button class="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </nav>
 
+<!-- HERO -->
 <section class="hero">
+  <div class="particles" id="particles"></div>
+  <div class="hero-orb"></div>
   <div class="hero-content">
-    <p class="eyebrow">Artisan Glass Works — Est. 2010</p>
-    <h1>Where Light<br>Becomes <em>Art</em></h1>
-    <p class="sub">Exquisite handcrafted glass creations — from delicate bangles to grand chandeliers — each piece a testament to the beauty of light refracted through glass.</p>
+    <p class="eyebrow">Handcrafted since 2010</p>
+    <h1>Where Light <em>Becomes</em><br>Art</h1>
+    <p class="sub">Each piece is hand-blown by master artisans, capturing the dance of light through molten glass. Discover a collection where tradition meets contemporary design.</p>
     <div class="hero-cta">
-      <a href="#products" class="btn-primary">View Collection</a>
-      <a href="#order" class="btn-outline">Place an Order</a>
+      <a href="/shop" class="btn-primary">Explore Collection</a>
+      <a href="/about" class="btn-outline">Our Story</a>
     </div>
   </div>
-  <div class="hero-orb"></div>
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-chevron"></div>
+  </div>
 </section>
 
 <div class="divider"><div class="div-line"></div><div class="div-diamond"></div><div class="div-line"></div></div>
 
-<section class="section" id="products">
-  <div class="section-header">
-    <p class="sec-eyebrow">Our Collection</p>
-    <h2 class="sec-title">Handcrafted Glass Works</h2>
+<!-- FEATURED PRODUCTS -->
+<section class="section" id="featured">
+  <div class="section-header fade-up">
+    <p class="sec-eyebrow">Curated Selection</p>
+    <h2 class="sec-title">Featured Works</h2>
   </div>
-  <div class="products-grid">
-    <div class="product-card" onclick="addToOrder('Glass Bangles','₹850')">
-      <span class="product-icon">💠</span>
-      <p class="product-category">Jewellery</p>
-      <h3 class="product-name">Glass Bangles</h3>
-      <p class="product-desc">Hand-blown bangles in rich colors — cobalt, rose, emerald. Available in sets of 12 or 24.</p>
-      <p class="product-price">₹850 <span>/ set</span></p>
-      <button class="add-btn">Add to Order</button>
+  <div class="products-grid" id="featuredGrid">
+    <!-- Skeletons while loading -->
+    <div class="skeleton skeleton-card"></div>
+    <div class="skeleton skeleton-card"></div>
+    <div class="skeleton skeleton-card"></div>
+    <div class="skeleton skeleton-card"></div>
+  </div>
+  <div style="text-align:center;margin-top:60px" class="fade-up">
+    <a href="/shop" class="btn-outline">View All Products</a>
+  </div>
+</section>
+
+<div class="divider"><div class="div-line"></div><div class="div-diamond"></div><div class="div-line"></div></div>
+
+<!-- CATEGORIES -->
+<section class="section">
+  <div class="section-header fade-up">
+    <p class="sec-eyebrow">Explore By Collection</p>
+    <h2 class="sec-title">Our Collections</h2>
+  </div>
+  <div class="categories-grid" id="categoriesGrid">
+    <div class="skeleton skeleton-card"></div>
+    <div class="skeleton skeleton-card"></div>
+    <div class="skeleton skeleton-card"></div>
+    <div class="skeleton skeleton-card"></div>
+  </div>
+</section>
+
+<div class="divider"><div class="div-line"></div><div class="div-diamond"></div><div class="div-line"></div></div>
+
+<!-- CRAFTSMANSHIP PROCESS -->
+<section class="process-section">
+  <div class="section-header fade-up">
+    <p class="sec-eyebrow">Our Process</p>
+    <h2 class="sec-title">The Art of Glass</h2>
+  </div>
+  <div class="process-timeline">
+    <div class="process-step fade-up">
+      <div class="step-icon">✏️<span class="step-num">1</span></div>
+      <h3 class="step-title">Design</h3>
+      <p class="step-desc">Every piece begins as a sketch — a vision of form, proportion, and how light will play through the glass.</p>
     </div>
-    <div class="product-card" onclick="addToOrder('Decorative Mirrors','₹4,200')">
-      <span class="product-icon">🪟</span>
-      <p class="product-category">Décor</p>
-      <h3 class="product-name">Decorative Mirrors</h3>
-      <p class="product-desc">Ornate framed mirrors with mosaic glass borders. Custom sizes available on request.</p>
-      <p class="product-price">₹4,200 <span>/ piece</span></p>
-      <button class="add-btn">Add to Order</button>
+    <div class="process-step fade-up">
+      <div class="step-icon">🔥<span class="step-num">2</span></div>
+      <h3 class="step-title">Blowing</h3>
+      <p class="step-desc">Molten glass at 1100°C is gathered on a blowpipe. With breath and skill, the master begins to give it form.</p>
     </div>
-    <div class="product-card" onclick="addToOrder('Glass Pendant Lights','₹3,600')">
-      <span class="product-icon">🏮</span>
-      <p class="product-category">Lighting</p>
-      <h3 class="product-name">Glass Pendant Lights</h3>
-      <p class="product-desc">Mouth-blown teardrop pendants that scatter prismatic light. Single or cluster arrangements.</p>
-      <p class="product-price">₹3,600 <span>/ piece</span></p>
-      <button class="add-btn">Add to Order</button>
+    <div class="process-step fade-up">
+      <div class="step-icon">🤲<span class="step-num">3</span></div>
+      <h3 class="step-title">Shaping</h3>
+      <p class="step-desc">Using ancient wooden tools and gravity, the glassblower coaxes the molten material into its final shape.</p>
     </div>
-    <div class="product-card" onclick="addToOrder('Crystal Chandelier','₹28,000')">
-      <span class="product-icon">✨</span>
-      <p class="product-category">Statement Pieces</p>
-      <h3 class="product-name">Crystal Chandelier</h3>
-      <p class="product-desc">Hand-assembled crystal cascades. Each chandelier takes 40+ hours to craft.</p>
-      <p class="product-price">₹28,000 <span>/ unit</span></p>
-      <button class="add-btn">Add to Order</button>
-    </div>
-    <div class="product-card" onclick="addToOrder('Glass Wall Art','₹6,500')">
-      <span class="product-icon">🎨</span>
-      <p class="product-category">Art</p>
-      <h3 class="product-name">Glass Wall Art</h3>
-      <p class="product-desc">Fused glass panels in abstract patterns. Vibrant, layered, entirely unique to your space.</p>
-      <p class="product-price">₹6,500 <span>/ panel</span></p>
-      <button class="add-btn">Add to Order</button>
-    </div>
-    <div class="product-card" onclick="addToOrder('Vases & Bowls','₹1,800')">
-      <span class="product-icon">🏺</span>
-      <p class="product-category">Home Décor</p>
-      <h3 class="product-name">Vases & Bowls</h3>
-      <p class="product-desc">Freeform sculptural vases and fruit bowls. Each one unique, no two identical in shape.</p>
-      <p class="product-price">₹1,800 <span>/ piece</span></p>
-      <button class="add-btn">Add to Order</button>
-    </div>
-    <div class="product-card" onclick="addToOrder('Mosaic Glass Lamps','₹5,400')">
-      <span class="product-icon">🔆</span>
-      <p class="product-category">Lighting</p>
-      <h3 class="product-name">Mosaic Glass Lamps</h3>
-      <p class="product-desc">Tiffany-inspired mosaic table and floor lamps in classic and contemporary patterns.</p>
-      <p class="product-price">₹5,400 <span>/ piece</span></p>
-      <button class="add-btn">Add to Order</button>
-    </div>
-    <div class="product-card" onclick="addToOrder('Glass Wind Chimes','₹1,200')">
-      <span class="product-icon">🎐</span>
-      <p class="product-category">Garden & Outdoor</p>
-      <h3 class="product-name">Glass Wind Chimes</h3>
-      <p class="product-desc">Delicate stained glass chimes catching sunlight and gentle breezes with melodic tones.</p>
-      <p class="product-price">₹1,200 <span>/ set</span></p>
-      <button class="add-btn">Add to Order</button>
+    <div class="process-step fade-up">
+      <div class="step-icon">✨<span class="step-num">4</span></div>
+      <h3 class="step-title">Finishing</h3>
+      <p class="step-desc">After annealing, each piece is inspected, polished, and signed by the artisan who created it.</p>
     </div>
   </div>
 </section>
 
-<section class="order-section" id="order">
-  <div class="order-grid">
-    <div class="order-intro">
-      <h2>Place Your<br><em>Order</em></h2>
-      <p>Each piece is crafted to order. Fill in your details and we'll confirm availability, timeline, and customizations.</p>
-      <div class="perks">
-        <div class="perk"><div class="perk-dot"></div><span>Custom sizes and colour matching available</span></div>
-        <div class="perk"><div class="perk-dot"></div><span>Bulk orders welcome — call for pricing</span></div>
-        <div class="perk"><div class="perk-dot"></div><span>Safe packaging and insured delivery</span></div>
-        <div class="perk"><div class="perk-dot"></div><span>We respond within 24 business hours</span></div>
+<div class="divider"><div class="div-line"></div><div class="div-diamond"></div><div class="div-line"></div></div>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials-section">
+  <div class="section-header fade-up">
+    <p class="sec-eyebrow">What Our Clients Say</p>
+    <h2 class="sec-title">Collected Stories</h2>
+  </div>
+  <div class="testimonials-carousel fade-in">
+    <div class="testimonials-track" id="testimonialsTrack">
+      <div class="testimonial-card">
+        <div class="testimonial-inner">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">The cobalt blue vase I ordered surpassed every expectation. The way light refracts through it at sunset fills our living room with colours I never knew glass could produce.</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">👩</div>
+            <div class="author-info">
+              <div class="name">Priya Mehta</div>
+              <div class="product">Cobalt Wave Vase</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-inner">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">I commissioned a set of hand-blown wine glasses for our wedding. Fifteen years later they remain the most treasured objects in our home. Truly heirloom quality.</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">👨</div>
+            <div class="author-info">
+              <div class="name">Arjun &amp; Kavya Singh</div>
+              <div class="product">Bespoke Wedding Collection</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-inner">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">The amber sculpture arrived perfectly packaged and even more beautiful than the photographs suggest. Luminara's craftsmanship is in a category of its own.</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">👩</div>
+            <div class="author-info">
+              <div class="name">Ritu Sharma</div>
+              <div class="product">Amber Flame Sculpture</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-inner">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">As an interior designer I've sourced glass art from across the world. Luminara's pieces have a soul that mass-produced glassware simply cannot replicate.</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">👨</div>
+            <div class="author-info">
+              <div class="name">Vikram Nair</div>
+              <div class="product">Emerald Series Bowls</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div>
-      <div class="order-summary">
-        <h4>Selected Items</h4>
-        <div id="orderList"><p class="empty-order">No items selected — browse the collection above</p></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>First Name *</label><input type="text" id="fname" placeholder="Priya" /></div>
-        <div class="form-group"><label>Last Name</label><input type="text" id="lname" placeholder="Sharma" /></div>
-      </div>
-      <div class="form-group"><label>Email Address *</label><input type="email" id="email" placeholder="priya@example.com" /></div>
-      <div class="form-group"><label>Phone Number *</label><input type="tel" id="phone" placeholder="+91 98765 43210" /></div>
-      <div class="form-group">
-        <label>Product (if not selected above) *</label>
-        <select id="product">
-          <option value="">— Select a product —</option>
-          <option>Glass Bangles</option>
-          <option>Decorative Mirrors</option>
-          <option>Glass Pendant Lights</option>
-          <option>Crystal Chandelier</option>
-          <option>Glass Wall Art</option>
-          <option>Vases & Bowls</option>
-          <option>Mosaic Glass Lamps</option>
-          <option>Glass Wind Chimes</option>
-          <option>Custom / Multiple Items</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Quantity</label><input type="number" id="qty" placeholder="1" min="1" value="1" /></div>
-        <div class="form-group"><label>Delivery City</label><input type="text" id="city" placeholder="Mumbai" /></div>
-      </div>
-      <div class="form-group"><label>Special Requirements</label><textarea id="notes" placeholder="Colors, sizes, custom dimensions, timeline..."></textarea></div>
-      <button class="submit-btn" id="submitBtn" onclick="submitOrder()">Submit Order Enquiry</button>
-    </div>
+    <div class="carousel-dots" id="carouselDots"></div>
   </div>
 </section>
 
-<footer id="footer">
-  <div>
-    <div class="logo"><span>Luminara</span> Glass</div>
-    <p style="margin-top:10px;">Crafting light into memory.</p>
+<div class="divider"><div class="div-line"></div><div class="div-diamond"></div><div class="div-line"></div></div>
+
+<!-- NEWSLETTER -->
+<section class="newsletter-section">
+  <div class="newsletter-panel fade-up">
+    <p class="sec-eyebrow" style="margin-bottom:16px">Join Our World</p>
+    <h2>Stories in Glass</h2>
+    <p>Be first to discover new collections, studio news, and exclusive invitations to glass-making events.</p>
+    <form class="newsletter-form" action="#">
+      <input type="email" placeholder="your@email.com" required aria-label="Email address">
+      <button type="submit">Subscribe</button>
+    </form>
   </div>
-  <p style="font-size:0.72rem;color:var(--muted);text-align:center;">© 2026 Luminara Glass Works.<br>All pieces handcrafted.</p>
-  <div class="footer-contact">
-    <p><a href="mailto:orders@luminaraglass.com">orders@luminaraglass.com</a></p>
-    <p>+91 98765 00001</p>
-    <p style="margin-top:6px;font-size:0.72rem;">Mon–Sat, 10am–6pm IST</p>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="/" class="footer-logo">Luminara <span style="font-style:italic;color:var(--gold)">Glass</span></a>
+      <p>Master artisans of glass since 2010. Every piece is hand-blown, signed, and made to endure for generations.</p>
+      <div style="display:flex;gap:12px;margin-top:20px">
+        <a href="#" style="color:var(--muted);font-size:1.2rem;text-decoration:none;transition:color 0.3s" onmouseenter="this.style.color='var(--gold-light)'" onmouseleave="this.style.color='var(--muted)'">📘</a>
+        <a href="#" style="color:var(--muted);font-size:1.2rem;text-decoration:none;transition:color 0.3s" onmouseenter="this.style.color='var(--gold-light)'" onmouseleave="this.style.color='var(--muted)'">📷</a>
+        <a href="#" style="color:var(--muted);font-size:1.2rem;text-decoration:none;transition:color 0.3s" onmouseenter="this.style.color='var(--gold-light)'" onmouseleave="this.style.color='var(--muted)'">🐦</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/shop">Shop</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact">Contact</a></li>
+        <li><a href="/track">Track Order</a></li>
+        <li><a href="/returns">Shipping &amp; Returns</a></li>
+      </ul>
+    </div>
+    <div class="footer-col" id="footerCategories">
+      <h4>Collections</h4>
+      <ul>
+        <li><a href="/shop">All Glass</a></li>
+      </ul>
+    </div>
+    <div class="footer-newsletter footer-col">
+      <h4>Newsletter</h4>
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:16px">Get studio stories and new arrivals direct to your inbox.</p>
+      <form class="newsletter-form" action="#" style="flex-direction:column;gap:0">
+        <input type="email" placeholder="your@email.com" required style="margin-bottom:8px">
+        <button type="submit" style="width:100%">Subscribe</button>
+      </form>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Luminara Glass. All rights reserved.</span>
+    <span><a href="/returns" style="color:var(--muted);text-decoration:none">Shipping &amp; Returns</a> · <a href="/contact" style="color:var(--muted);text-decoration:none">Privacy Policy</a></span>
   </div>
 </footer>
 
-<div class="toast" id="toast">
-  <div class="toast-icon" id="toastIcon">✦</div>
-  <div class="toast-text">
-    <strong id="toastTitle"></strong>
-    <span id="toastMsg"></span>
-  </div>
-</div>
-
+<script src="/js/shared.js"></script>
 <script>
-  // Custom cursor
-  const cursor = document.getElementById('cursor');
-  const ring   = document.getElementById('cursorRing');
-  let mx=0,my=0,rx=0,ry=0;
-  document.addEventListener('mousemove',e=>{ mx=e.clientX; my=e.clientY; cursor.style.left=mx+'px'; cursor.style.top=my+'px'; });
-  (function animRing(){ rx+=(mx-rx)*0.12; ry+=(my-ry)*0.12; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(animRing); })();
-  document.querySelectorAll('button,a,input,select,textarea').forEach(el=>{
-    el.addEventListener('mouseenter',()=>cursor.style.transform='translate(-50%,-50%) scale(2.5)');
-    el.addEventListener('mouseleave',()=>cursor.style.transform='translate(-50%,-50%) scale(1)');
+// Particles
+(function() {
+  const container = document.getElementById('particles');
+  const count = 20;
+  const colors = ['rgba(168,200,232,0.3)','rgba(201,169,110,0.2)','rgba(255,255,255,0.15)'];
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 4 + 2;
+    p.style.cssText = `
+      width:${size}px;height:${size}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --dur:${Math.random()*8+6}s;
+      --max-opacity:${Math.random()*0.4+0.1};
+      animation-delay:${Math.random()*8}s;
+    `;
+    container.appendChild(p);
+  }
+})();
+
+// Featured products
+async function loadFeatured() {
+  try {
+    const res = await fetch('/api/products/featured?limit=8');
+    const data = await res.json();
+    const grid = document.getElementById('featuredGrid');
+    if (!data.data || !data.data.length) {
+      grid.innerHTML = '<p style="color:var(--muted);text-align:center;grid-column:1/-1;padding:60px 0">No featured products yet.</p>';
+      return;
+    }
+    grid.innerHTML = data.data.map((p, i) => `
+      <div class="product-card fade-up" style="transition-delay:${i*0.08}s">
+        <span class="product-icon">${p.icon || '🔮'}</span>
+        <div class="product-category">${p.category_name || ''}</div>
+        <h3 class="product-name">${p.name}</h3>
+        <div class="product-price">
+          ${formatPrice(p.price)}
+          ${p.compare_at_price > 0 ? `<span class="compare">${formatPrice(p.compare_at_price)}</span>` : ''}
+          ${p.compare_at_price > 0 ? `<span class="discount">${Math.round((1-p.price/p.compare_at_price)*100)}% off</span>` : ''}
+        </div>
+        <p class="product-desc">${(p.short_description || p.description || '').substring(0,100)}${(p.short_description||p.description||'').length>100?'…':''}</p>
+        <div class="stock-indicator ${p.stock_qty > 5 ? 'stock-in' : p.stock_qty > 0 ? 'stock-low' : 'stock-out'}">
+          <span class="stock-dot"></span>
+          <span>${p.stock_qty > 5 ? 'In Stock' : p.stock_qty > 0 ? 'Low Stock' : 'Out of Stock'}</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="handleAddToCart(this, ${JSON.stringify(p).replace(/"/g,'&quot;')})" ${p.stock_qty===0?'disabled':''}>
+          <span>${p.stock_qty===0?'Out of Stock':'Add to Cart'}</span>
+        </button>
+        <a href="/product?slug=${p.slug}" style="display:block;text-align:center;margin-top:12px;font-size:0.72rem;color:var(--muted);text-decoration:none;letter-spacing:0.1em;transition:color 0.3s" onmouseenter="this.style.color='var(--gold)'" onmouseleave="this.style.color='var(--muted)'">View Details →</a>
+      </div>
+    `).join('');
+    if (window._reobserveAnimations) window._reobserveAnimations();
+  } catch(e) {
+    document.getElementById('featuredGrid').innerHTML = '<p style="color:var(--muted);text-align:center;grid-column:1/-1;padding:60px 0">Could not load products.</p>';
+  }
+}
+
+// Categories
+async function loadCategories() {
+  try {
+    const res = await fetch('/api/categories');
+    const data = await res.json();
+    const grid = document.getElementById('categoriesGrid');
+    const footerCats = document.getElementById('footerCategories');
+    if (!data.data || !data.data.length) { grid.innerHTML = ''; return; }
+    const icons = ['🏺','🍷','💎','🔮','🌊','🌺','⭐','🎨'];
+    grid.innerHTML = data.data.map((c, i) => `
+      <a href="/shop?category=${c.slug}" class="category-card fade-up" style="transition-delay:${i*0.1}s">
+        <span class="cat-icon">${c.icon || icons[i % icons.length]}</span>
+        <div class="cat-name">${c.name}</div>
+        <div class="cat-count">${c.product_count || 0} pieces</div>
+      </a>
+    `).join('');
+    // Update footer categories
+    if (footerCats) {
+      footerCats.innerHTML = `<h4>Collections</h4><ul>${data.data.slice(0,6).map(c=>`<li><a href="/shop?category=${c.slug}">${c.name}</a></li>`).join('')}</ul>`;
+    }
+    if (window._reobserveAnimations) window._reobserveAnimations();
+  } catch {}
+}
+
+// Add to cart handler
+function handleAddToCart(btn, product) {
+  Cart.addToCart({
+    slug: product.slug,
+    name: product.name,
+    price: product.price,
+    compare_at_price: product.compare_at_price,
+    icon: product.icon || '🔮',
+    category: product.category_name
+  });
+  const span = btn.querySelector('span');
+  const orig = span.textContent;
+  btn.classList.add('added');
+  span.textContent = '✓ Added';
+  setTimeout(() => { btn.classList.remove('added'); span.textContent = orig; }, 2000);
+  showToast(product.name, 'Added to your cart.');
+}
+
+// Testimonials carousel
+(function() {
+  const track = document.getElementById('testimonialsTrack');
+  const dotsContainer = document.getElementById('carouselDots');
+  if (!track) return;
+  const cards = track.querySelectorAll('.testimonial-card');
+  let current = 0;
+
+  // Create dots
+  cards.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'carousel-dot' + (i===0?' active':'');
+    dot.addEventListener('click', () => goTo(i));
+    dotsContainer.appendChild(dot);
   });
 
-  // Smooth scroll
-  document.querySelectorAll('a[href^="#"]').forEach(a=>
-    a.addEventListener('click',e=>{ e.preventDefault(); document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'}); })
-  );
-
-  // Toast
-  let toastTimer;
-  function showToast(title,msg,type='success'){
-    const t=document.getElementById('toast');
-    document.getElementById('toastTitle').textContent=title;
-    document.getElementById('toastMsg').textContent=msg;
-    document.getElementById('toastIcon').textContent=type==='error'?'✕':'✦';
-    t.className='toast'+(type==='error'?' error':'');
-    t.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer=setTimeout(()=>t.classList.remove('show'),4500);
+  function goTo(idx) {
+    current = idx;
+    track.style.transform = `translateX(-${idx*100}%)`;
+    dotsContainer.querySelectorAll('.carousel-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
   }
 
-  // Cart
-  let orderItems=[];
-  function addToOrder(name,price){
-    const ex=orderItems.find(i=>i.name===name);
-    if(ex) ex.qty++; else orderItems.push({name,price,qty:1});
-    renderOrderList();
-    showToast(name,'Added to your enquiry list.');
-    const sel=document.getElementById('product');
-    for(let o of sel.options) if(o.value===name){sel.value=name;break;}
-  }
-  function removeFromOrder(name){ orderItems=orderItems.filter(i=>i.name!==name); renderOrderList(); }
-  function renderOrderList(){
-    const list=document.getElementById('orderList');
-    if(!orderItems.length){ list.innerHTML='<p class="empty-order">No items selected — browse the collection above</p>'; return; }
-    list.innerHTML=orderItems.map(i=>`
-      <div class="order-item">
-        <span>${i.name} × ${i.qty}</span>
-        <span><span style="color:var(--gold-light)">${i.price}</span>
-        <span class="remove" onclick="removeFromOrder('${i.name}')">✕</span></span>
-      </div>`).join('');
-  }
+  // Auto-rotate
+  let autoplay = setInterval(() => goTo((current+1) % cards.length), 5000);
+  track.addEventListener('mouseenter', () => clearInterval(autoplay));
+  track.addEventListener('mouseleave', () => { autoplay = setInterval(() => goTo((current+1) % cards.length), 5000); });
+})();
 
-  // Submit → POST /api/orders
-  async function submitOrder(){
-    const fname  =document.getElementById('fname').value.trim();
-    const lname  =document.getElementById('lname').value.trim();
-    const email  =document.getElementById('email').value.trim();
-    const phone  =document.getElementById('phone').value.trim();
-    const product=document.getElementById('product').value;
-    const qty    =parseInt(document.getElementById('qty').value)||1;
-    const city   =document.getElementById('city').value.trim();
-    const notes  =document.getElementById('notes').value.trim();
-
-    if(!fname||!email||!phone){ showToast('Missing Details','Please fill in your name, email and phone.','error'); return; }
-
-    let items=orderItems.length ? orderItems : product ? [{name:product,price:'',qty}] : [];
-    if(!items.length){ showToast('No Product Selected','Please select at least one product.','error'); return; }
-
-    const btn=document.getElementById('submitBtn');
-    btn.disabled=true;
-    btn.innerHTML='<span class="spinner"></span>Sending…';
-
-    try {
-      const res =await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({first_name:fname,last_name:lname,email,phone,city,notes,items})});
-      const data=await res.json();
-      if(data.success){
-        showToast(`Thank you, ${fname}!`,data.message);
-        ['fname','lname','email','phone','city','notes'].forEach(id=>document.getElementById(id).value='');
-        document.getElementById('product').value='';
-        document.getElementById('qty').value='1';
-        orderItems=[]; renderOrderList();
-      } else {
-        showToast('Order Failed',data.error||'Something went wrong.','error');
-      }
-    } catch(e){
-      showToast('Network Error','Could not reach the server. Please try again.','error');
-    } finally {
-      btn.disabled=false; btn.innerHTML='Submit Order Enquiry';
-    }
-  }
+loadFeatured();
+loadCategories();
 </script>
 </body>
 </html>

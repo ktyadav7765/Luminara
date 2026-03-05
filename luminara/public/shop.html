@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shop — Luminara Glass</title>
+<meta name="description" content="Browse our complete collection of handcrafted glass artworks, vases, sculptures and more.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/shared.css">
+<style>
+.shop-layout { display:grid; grid-template-columns:280px 1fr; gap:0; min-height:calc(100vh - 80px); margin-top:80px; }
+.filter-sidebar { background:var(--dark2); border-right:1px solid rgba(255,255,255,0.04); padding:40px 28px; position:sticky; top:80px; height:calc(100vh - 80px); overflow-y:auto; }
+.filter-sidebar::-webkit-scrollbar { width:2px; }
+.filter-sidebar::-webkit-scrollbar-thumb { background:rgba(201,169,110,0.2); }
+.filter-title { font-size:0.6rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--gold); margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; }
+.filter-section { margin-bottom:32px; }
+.filter-section h3 { font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+.filter-option { display:flex; align-items:center; gap:10px; margin-bottom:10px; cursor:none; }
+.filter-option input[type="checkbox"] { width:16px; height:16px; appearance:none; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.15); cursor:none; position:relative; flex-shrink:0; transition:all 0.2s; }
+.filter-option input[type="checkbox"]:checked { background:var(--gold); border-color:var(--gold); }
+.filter-option input[type="checkbox"]:checked::after { content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:0.7rem; color:var(--dark); }
+.filter-option label { font-size:0.82rem; color:var(--muted); cursor:none; transition:color 0.2s; }
+.filter-option:hover label { color:var(--text); }
+.price-inputs { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.price-inputs input { padding:10px 12px; font-size:0.82rem; }
+.filter-btn { width:100%; padding:10px; margin-top:8px; }
+.clear-filters { background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--muted); font-family:'Jost',sans-serif; font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase; cursor:none; padding:8px; width:100%; transition:all 0.3s; margin-top:8px; }
+.clear-filters:hover { border-color:rgba(201,169,110,0.3); color:var(--gold); }
+
+.shop-main { padding:40px 48px; }
+.shop-topbar { display:flex; align-items:center; gap:16px; margin-bottom:32px; flex-wrap:wrap; }
+.search-wrap { flex:1; min-width:240px; position:relative; }
+.search-wrap input { padding-left:40px; }
+.search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:0.9rem; pointer-events:none; }
+.sort-select { min-width:200px; padding:14px 18px; }
+.results-count { font-size:0.75rem; color:var(--muted); white-space:nowrap; }
+.filter-toggle-btn { display:none; align-items:center; gap:8px; padding:12px 20px; background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--text); font-family:'Jost',sans-serif; font-size:0.75rem; letter-spacing:0.15em; cursor:none; text-transform:uppercase; transition:all 0.3s; }
+.filter-toggle-btn:hover { border-color:rgba(201,169,110,0.3); color:var(--gold); }
+
+.load-more-wrap { text-align:center; margin-top:60px; padding-bottom:80px; }
+.load-more-btn { padding:16px 48px; }
+
+.empty-state { text-align:center; padding:120px 40px; grid-column:1/-1; }
+.empty-icon { font-size:4rem; margin-bottom:24px; opacity:0.4; }
+.empty-state h3 { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:300; margin-bottom:16px; }
+.empty-state p { color:var(--muted); font-size:0.88rem; }
+
+/* Filter drawer for mobile */
+.filter-drawer { position:fixed; top:0; left:0; bottom:0; width:300px; background:var(--dark2); z-index:600; transform:translateX(-100%); transition:transform 0.4s cubic-bezier(0.4,0,0.2,1); overflow-y:auto; padding:80px 28px 40px; border-right:1px solid rgba(255,255,255,0.06); }
+.filter-drawer.open { transform:translateX(0); }
+.filter-drawer-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:599; opacity:0; pointer-events:none; transition:opacity 0.3s; backdrop-filter:blur(4px); }
+.filter-drawer-overlay.open { opacity:1; pointer-events:all; }
+.filter-drawer-close { position:absolute; top:24px; right:24px; background:transparent; border:none; color:var(--muted); font-size:1.2rem; cursor:none; }
+
+@media(max-width:900px){
+  .shop-layout { grid-template-columns:1fr; }
+  .filter-sidebar { display:none; }
+  .shop-main { padding:32px 24px; }
+  .filter-toggle-btn { display:flex; }
+}
+@media(max-width:600px){
+  .shop-topbar { flex-direction:column; align-items:stretch; }
+  .search-wrap { min-width:unset; }
+  .sort-select { min-width:unset; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="site-nav">
+  <a href="/" class="nav-logo">Luminara <span>Glass</span></a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/shop">Shop</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="/contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="cart-btn" aria-label="Open cart">🛒<span class="cart-badge" style="display:none">0</span></button>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- FILTER DRAWER (mobile) -->
+<div class="filter-drawer-overlay" id="filterOverlay"></div>
+<div class="filter-drawer" id="filterDrawer">
+  <button class="filter-drawer-close" id="filterDrawerClose">✕</button>
+  <div id="filterDrawerContent"></div>
+</div>
+
+<div class="shop-layout">
+  <!-- FILTER SIDEBAR -->
+  <aside class="filter-sidebar" id="filterSidebar">
+    <div class="filter-title">
+      Filters
+      <button class="clear-filters" id="clearFilters" style="width:auto;padding:4px 12px;font-size:0.6rem">Clear All</button>
+    </div>
+    <div class="filter-section">
+      <h3>Category</h3>
+      <div id="categoryFilters"><div class="skeleton skeleton-line" style="height:12px;margin-bottom:10px;width:80%"></div><div class="skeleton skeleton-line" style="height:12px;margin-bottom:10px;width:70%"></div></div>
+    </div>
+    <div class="filter-section">
+      <h3>Price Range</h3>
+      <div class="price-inputs">
+        <input type="number" id="minPrice" placeholder="Min ₹" min="0">
+        <input type="number" id="maxPrice" placeholder="Max ₹" min="0">
+      </div>
+      <button class="btn-primary filter-btn" id="applyPrice" style="padding:10px;font-size:0.65rem">Apply</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="shop-main">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="/">Home</a>
+      <span>›</span>
+      <span id="breadcrumbCurrent">Shop</span>
+    </div>
+
+    <!-- Top bar -->
+    <div class="shop-topbar">
+      <button class="filter-toggle-btn" id="filterToggleBtn">⚙ Filters</button>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search glass works…">
+      </div>
+      <select class="sort-select" id="sortSelect">
+        <option value="">Sort: Featured</option>
+        <option value="price_asc">Price: Low to High</option>
+        <option value="price_desc">Price: High to Low</option>
+        <option value="newest">Newest First</option>
+        <option value="name_asc">Name: A–Z</option>
+      </select>
+      <span class="results-count" id="resultsCount"></span>
+    </div>
+
+    <!-- Product grid -->
+    <div class="products-grid" id="shopGrid">
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+    </div>
+
+    <!-- Load more -->
+    <div class="load-more-wrap" id="loadMoreWrap" style="display:none">
+      <button class="btn-outline load-more-btn" id="loadMoreBtn">Load More</button>
+    </div>
+  </main>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="/" class="footer-logo">Luminara <span style="font-style:italic;color:var(--gold)">Glass</span></a>
+      <p>Master artisans of glass since 2010.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/shop">Shop</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Help</h4>
+      <ul>
+        <li><a href="/track">Track Order</a></li>
+        <li><a href="/returns">Shipping &amp; Returns</a></li>
+        <li><a href="/contact">Contact Us</a></li>
+      </ul>
+    </div>
+    <div class="footer-newsletter footer-col">
+      <h4>Newsletter</h4>
+      <form class="newsletter-form" action="#" style="flex-direction:column;gap:0">
+        <input type="email" placeholder="your@email.com" required style="margin-bottom:8px">
+        <button type="submit" style="width:100%">Subscribe</button>
+      </form>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Luminara Glass. All rights reserved.</span>
+  </div>
+</footer>
+
+<script src="/js/shared.js"></script>
+<script>
+let currentPage = 1;
+let currentFilters = { category: '', min_price: '', max_price: '', search: '', sort: '' };
+let totalLoaded = 0;
+let totalProducts = 0;
+const LIMIT = 12;
+
+// Read URL params
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('category')) {
+  currentFilters.category = urlParams.get('category');
+  document.getElementById('breadcrumbCurrent').textContent = 'Shop › ' + urlParams.get('category');
+}
+if (urlParams.get('search')) {
+  currentFilters.search = urlParams.get('search');
+  document.getElementById('searchInput').value = currentFilters.search;
+}
+
+// Load categories for filter
+async function loadCategoryFilters() {
+  try {
+    const res = await fetch('/api/categories');
+    const data = await res.json();
+    const container = document.getElementById('categoryFilters');
+    if (!data.data) return;
+    container.innerHTML = data.data.map(c => `
+      <div class="filter-option">
+        <input type="checkbox" id="cat_${c.slug}" value="${c.slug}" ${currentFilters.category===c.slug?'checked':''}>
+        <label for="cat_${c.slug}">${c.name} <span style="color:rgba(138,134,128,0.5)">(${c.product_count||0})</span></label>
+      </div>
+    `).join('');
+    container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const checked = [...container.querySelectorAll('input:checked')].map(i => i.value);
+        currentFilters.category = checked.join(',');
+        resetAndLoad();
+        updateURL();
+      });
+    });
+    // Sync to drawer
+    syncFilterDrawer();
+  } catch {}
+}
+
+function syncFilterDrawer() {
+  const sidebar = document.getElementById('filterSidebar');
+  const drawerContent = document.getElementById('filterDrawerContent');
+  if (drawerContent && sidebar) {
+    drawerContent.innerHTML = sidebar.innerHTML;
+    // Re-attach events
+    drawerContent.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const checked = [...drawerContent.querySelectorAll('input:checked')].map(i => i.value);
+        currentFilters.category = checked.join(',');
+        resetAndLoad();
+        updateURL();
+      });
+    });
+  }
+}
+
+function updateURL() {
+  const params = new URLSearchParams();
+  if (currentFilters.category) params.set('category', currentFilters.category);
+  if (currentFilters.search) params.set('search', currentFilters.search);
+  const newURL = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+  history.pushState(null, '', newURL);
+}
+
+function buildAPIUrl() {
+  const params = new URLSearchParams();
+  if (currentFilters.category) params.set('category', currentFilters.category);
+  if (currentFilters.min_price) params.set('min_price', currentFilters.min_price);
+  if (currentFilters.max_price) params.set('max_price', currentFilters.max_price);
+  if (currentFilters.search) params.set('search', currentFilters.search);
+  if (currentFilters.sort) params.set('sort', currentFilters.sort);
+  params.set('page', currentPage);
+  params.set('limit', LIMIT);
+  return '/api/products?' + params.toString();
+}
+
+async function loadProducts(append = false) {
+  const grid = document.getElementById('shopGrid');
+
+  if (!append) {
+    grid.innerHTML = Array(6).fill('<div class="skeleton skeleton-card"></div>').join('');
+  }
+
+  try {
+    const res = await fetch(buildAPIUrl());
+    const data = await res.json();
+
+    if (!append) grid.innerHTML = '';
+
+    if (!data.data || !data.data.length) {
+      if (!append) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <h3>No products found</h3>
+            <p>Try adjusting your filters or search query</p>
+          </div>`;
+      }
+      document.getElementById('loadMoreWrap').style.display = 'none';
+      document.getElementById('resultsCount').textContent = '';
+      return;
+    }
+
+    totalProducts = data.pagination?.total || data.data.length;
+    totalLoaded = append ? totalLoaded + data.data.length : data.data.length;
+
+    document.getElementById('resultsCount').textContent = `${totalProducts} result${totalProducts !== 1 ? 's' : ''}`;
+
+    data.data.forEach((p, i) => {
+      const card = document.createElement('div');
+      card.className = 'product-card fade-up';
+      card.style.transitionDelay = (i * 0.06) + 's';
+      card.innerHTML = `
+        <span class="product-icon">${p.icon || '🔮'}</span>
+        <div class="product-category">${p.category_name || ''}</div>
+        <h3 class="product-name">${p.name}</h3>
+        <div class="product-price">
+          ${formatPrice(p.price)}
+          ${p.compare_at_price > 0 ? `<span class="compare">${formatPrice(p.compare_at_price)}</span>` : ''}
+          ${p.compare_at_price > 0 ? `<span class="discount">${Math.round((1-p.price/p.compare_at_price)*100)}% off</span>` : ''}
+        </div>
+        <p class="product-desc">${(p.short_description || p.description || '').substring(0,90)}${(p.short_description||p.description||'').length>90?'…':''}</p>
+        <div class="stock-indicator ${p.stock_qty > 5 ? 'stock-in' : p.stock_qty > 0 ? 'stock-low' : 'stock-out'}">
+          <span class="stock-dot"></span>
+          <span>${p.stock_qty > 5 ? 'In Stock' : p.stock_qty > 0 ? 'Low Stock' : 'Out of Stock'}</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="handleAddToCart(this, ${JSON.stringify(p).replace(/"/g,'&quot;')})" ${p.stock_qty===0?'disabled':''}>
+          <span>${p.stock_qty===0?'Out of Stock':'Add to Cart'}</span>
+        </button>
+        <a href="/product?slug=${p.slug}" style="display:block;text-align:center;margin-top:12px;font-size:0.72rem;color:var(--muted);text-decoration:none;letter-spacing:0.1em;transition:color 0.3s" onmouseenter="this.style.color='var(--gold)'" onmouseleave="this.style.color='var(--muted)'">View Details →</a>
+      `;
+      grid.appendChild(card);
+    });
+
+    if (window._reobserveAnimations) window._reobserveAnimations();
+
+    const hasMore = totalLoaded < totalProducts;
+    document.getElementById('loadMoreWrap').style.display = hasMore ? 'block' : 'none';
+
+  } catch(e) {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Error loading products</h3><p>Please try again</p></div>';
+  }
+}
+
+function resetAndLoad() {
+  currentPage = 1;
+  totalLoaded = 0;
+  loadProducts(false);
+}
+
+// Add to cart
+function handleAddToCart(btn, product) {
+  Cart.addToCart({
+    slug: product.slug, name: product.name, price: product.price,
+    compare_at_price: product.compare_at_price, icon: product.icon || '🔮', category: product.category_name
+  });
+  const span = btn.querySelector('span');
+  const orig = span.textContent;
+  btn.classList.add('added');
+  span.textContent = '✓ Added';
+  setTimeout(() => { btn.classList.remove('added'); span.textContent = orig; }, 2000);
+  showToast(product.name, 'Added to your cart.');
+}
+
+// Search
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('input', debounce(e => {
+  currentFilters.search = e.target.value.trim();
+  resetAndLoad();
+  updateURL();
+}, 300));
+
+// Sort
+document.getElementById('sortSelect').addEventListener('change', e => {
+  currentFilters.sort = e.target.value;
+  resetAndLoad();
+});
+
+// Price filter
+document.getElementById('applyPrice').addEventListener('click', () => {
+  currentFilters.min_price = document.getElementById('minPrice').value;
+  currentFilters.max_price = document.getElementById('maxPrice').value;
+  resetAndLoad();
+});
+
+// Clear filters
+document.getElementById('clearFilters').addEventListener('click', () => {
+  currentFilters = { category:'', min_price:'', max_price:'', search:'', sort:'' };
+  document.getElementById('minPrice').value = '';
+  document.getElementById('maxPrice').value = '';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('sortSelect').value = '';
+  document.querySelectorAll('#categoryFilters input, #filterDrawerContent input').forEach(cb => cb.checked = false);
+  history.pushState(null, '', '/shop');
+  document.getElementById('breadcrumbCurrent').textContent = 'Shop';
+  resetAndLoad();
+});
+
+// Load more
+document.getElementById('loadMoreBtn').addEventListener('click', () => {
+  currentPage++;
+  loadProducts(true);
+});
+
+// Mobile filter drawer
+document.getElementById('filterToggleBtn').addEventListener('click', () => {
+  document.getElementById('filterDrawer').classList.add('open');
+  document.getElementById('filterOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  syncFilterDrawer();
+});
+document.getElementById('filterDrawerClose').addEventListener('click', closeFilterDrawer);
+document.getElementById('filterOverlay').addEventListener('click', closeFilterDrawer);
+function closeFilterDrawer() {
+  document.getElementById('filterDrawer').classList.remove('open');
+  document.getElementById('filterOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Init
+loadCategoryFilters();
+loadProducts();
+</script>
+</body>
+</html>
