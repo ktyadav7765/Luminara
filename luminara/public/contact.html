@@ -183,13 +183,15 @@
 
 <script src="/js/shared.js"></script>
 <script>
+var MIN_MESSAGE_LENGTH = 10;
+
 document.getElementById('contactForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   var fields = [
     { id:'cName', check: function(v){ return v.length > 0; } },
     { id:'cEmail', check: function(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); } },
     { id:'cSubject', check: function(v){ return v.length > 0; } },
-    { id:'cMessage', check: function(v){ return v.length > 10; } }
+    { id:'cMessage', check: function(v){ return v.length > MIN_MESSAGE_LENGTH; } }
   ];
   var valid = true;
   fields.forEach(function(f) {
