@@ -387,9 +387,10 @@ app.get('/api/products/featured', async (req, res) => {
 
 // ── GET /api/products ────────────────────────────────────────
 app.get('/api/products', async (req, res) => {
-  const { category, min_price, max_price, search, sort, page = 1, limit = 12 } = req.query;
+  const { category, min_price, max_price, search, sort, page = 1, limit = 12, show_inactive } = req.query;
   const params = [];
-  const conditions = ['p.is_active = true'];
+  const conditions = [];
+  if (show_inactive !== 'true') conditions.push('p.is_active = true');
 
   if (category) {
     conditions.push(`c.slug = $${params.length + 1}`);
@@ -420,7 +421,7 @@ app.get('/api/products', async (req, res) => {
   const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
   const offset   = (pageNum - 1) * limitNum;
 
-  const whereClause = ' WHERE ' + conditions.join(' AND ');
+  const whereClause = conditions.length ? ' WHERE ' + conditions.join(' AND ') : '';
   const baseQuery = `
     FROM products p
     LEFT JOIN categories c ON c.id = p.category_id
