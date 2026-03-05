@@ -374,8 +374,8 @@ async function loadFeatured() {
         <h3 class="product-name">${p.name}</h3>
         <div class="product-price">
           ${formatPrice(p.price)}
-          ${p.compare_at_price ? `<span class="compare">${formatPrice(p.compare_at_price)}</span>` : ''}
-          ${p.compare_at_price ? `<span class="discount">${Math.round((1-p.price/p.compare_at_price)*100)}% off</span>` : ''}
+          ${p.compare_at_price > 0 ? `<span class="compare">${formatPrice(p.compare_at_price)}</span>` : ''}
+          ${p.compare_at_price > 0 ? `<span class="discount">${Math.round((1-p.price/p.compare_at_price)*100)}% off</span>` : ''}
         </div>
         <p class="product-desc">${(p.short_description || p.description || '').substring(0,100)}${(p.short_description||p.description||'').length>100?'…':''}</p>
         <div class="stock-indicator ${p.stock_qty > 5 ? 'stock-in' : p.stock_qty > 0 ? 'stock-low' : 'stock-out'}">
