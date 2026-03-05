@@ -143,6 +143,29 @@
     .stats-grid{grid-template-columns:1fr 1fr;}
     .bottom-grid{grid-template-columns:1fr;}
   }
+
+  .form-row{display:flex;gap:20px;margin-bottom:18px;}
+  .form-field{flex:1;min-width:0;}
+  .form-label{display:block;font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+  .form-input{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:var(--text);font-family:'Jost',sans-serif;font-size:0.85rem;padding:11px 14px;outline:none;transition:border-color 0.2s;}
+  .form-input:focus{border-color:rgba(201,169,110,0.4);}
+  .form-textarea{resize:vertical;min-height:80px;}
+  .form-select{appearance:none;}
+  select.form-input option{background:var(--dark2);}
+  .spec-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
+  .spec-key{flex:1;} .spec-val{flex:2;}
+  .add-spec-btn{margin-top:4px;background:transparent;border:1px dashed rgba(201,169,110,0.3);color:var(--muted);font-family:'Jost',sans-serif;font-size:0.7rem;padding:7px;cursor:pointer;letter-spacing:0.1em;width:100%;text-align:center;transition:all 0.2s;}
+  .add-spec-btn:hover{border-color:var(--gold);color:var(--gold);}
+  .remove-spec-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:4px;transition:color 0.2s;flex-shrink:0;line-height:1;}
+  .remove-spec-btn:hover{color:var(--cancelled);}
+  .toggle-field{display:flex;align-items:center;gap:10px;padding:6px 0;}
+  .toggle-field label{font-size:0.82rem;cursor:pointer;color:var(--muted);}
+  .toggle-field input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--gold);}
+  .prod-modal{width:700px;}
+  .prod-add-btn{padding:10px 22px;background:var(--gold);color:var(--dark);border:none;font-family:'Jost',sans-serif;font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:background 0.3s;}
+  .prod-add-btn:hover{background:var(--gold-light);}
+  .prod-filter-btn{padding:10px 18px;background:var(--dark2);border:1px solid rgba(255,255,255,0.07);color:var(--muted);font-family:'Jost',sans-serif;font-size:0.72rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+  .prod-filter-btn:hover,.prod-filter-btn.active{border-color:var(--gold);color:var(--gold-light);background:rgba(201,169,110,0.06);}
 </style>
 </head>
 <body>
@@ -156,6 +179,11 @@
     <div class="nav-section">Overview</div>
     <div class="nav-item active" onclick="showSection('dashboard',this)">
       <span class="nav-icon">◈</span> Dashboard
+    </div>
+    <div class="nav-section" style="margin-top:16px;">Catalog</div>
+    <div class="nav-item" onclick="showSection('products',this)">
+      <span class="nav-icon">◇</span> Products
+      <span class="nav-badge" id="productsBadge" style="display:none">0</span>
     </div>
     <div class="nav-section" style="margin-top:16px;">Orders</div>
     <div class="nav-item" onclick="showSection('orders',this)">
@@ -340,6 +368,37 @@
       </div>
     </div>
 
+    <!-- Products -->
+    <div id="section-products" style="display:none">
+      <div class="filters-bar">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input type="text" id="productSearch" placeholder="Search products…" oninput="filterProducts()" />
+        </div>
+        <button class="prod-filter-btn active" onclick="setProdFilter(this,'')">All</button>
+        <button class="prod-filter-btn" onclick="setProdFilter(this,'active')">Active</button>
+        <button class="prod-filter-btn" onclick="setProdFilter(this,'inactive')">Inactive</button>
+        <button class="prod-filter-btn" onclick="setProdFilter(this,'featured')">Featured</button>
+        <button class="prod-add-btn" onclick="openProductModal(null)">+ Add Product</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">Products</div>
+          <div class="table-count" id="prodCount">— products</div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Featured</th><th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productsTableBody">
+            <tr class="loading-row"><td colspan="7"><div class="dots"><span></span><span></span><span></span></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 </main>
 
@@ -354,6 +413,93 @@
   </div>
 </div>
 
+<!-- Product Modal -->
+<div class="modal-overlay" id="productModalOverlay" onclick="closeProductModal(event)">
+  <div class="modal prod-modal">
+    <div class="modal-header">
+      <div class="modal-title" id="prodModalTitle">New <em style="color:var(--gold-light)">Product</em></div>
+      <button class="modal-close" onclick="closeProductModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Name *</label>
+          <input class="form-input" id="pName" type="text" placeholder="e.g. Azure Whisper Vase" oninput="autoSlug()" required aria-required="true" />
+        </div>
+        <div class="form-field">
+          <label class="form-label">Slug *</label>
+          <input class="form-input" id="pSlug" type="text" placeholder="e.g. azure-whisper-vase" required aria-required="true" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Short Description</label>
+          <input class="form-input" id="pShortDesc" type="text" placeholder="Brief tagline for the product" />
+        </div>
+        <div class="form-field">
+          <label class="form-label">Icon / Emoji</label>
+          <input class="form-input" id="pIcon" type="text" placeholder="e.g. 🏺" style="max-width:120px;" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Description</label>
+          <textarea class="form-input form-textarea" id="pDesc" placeholder="Full product description…"></textarea>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Category</label>
+          <select class="form-input form-select" id="pCategoryId">
+            <option value="">— No Category —</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Price (₹) *</label>
+          <input class="form-input" id="pPrice" type="number" min="0" step="0.01" placeholder="0.00" required aria-required="true" />
+        </div>
+        <div class="form-field">
+          <label class="form-label">Compare At Price (₹)</label>
+          <input class="form-input" id="pComparePrice" type="number" min="0" step="0.01" placeholder="0.00" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Stock Quantity</label>
+          <input class="form-input" id="pStock" type="number" min="0" placeholder="0" />
+        </div>
+        <div class="form-field">
+          <label class="form-label">Tags (comma-separated)</label>
+          <input class="form-input" id="pTags" type="text" placeholder="e.g. handmade, vase, blue" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <div class="toggle-field">
+            <input type="checkbox" id="pFeatured" />
+            <label for="pFeatured">Featured Product</label>
+          </div>
+        </div>
+        <div class="form-field">
+          <div class="toggle-field">
+            <input type="checkbox" id="pActive" checked />
+            <label for="pActive">Active (visible in store)</label>
+          </div>
+        </div>
+      </div>
+      <div style="margin-bottom:20px;">
+        <div class="form-label" style="margin-bottom:10px;">Specifications</div>
+        <div id="specsContainer"></div>
+        <button type="button" class="add-spec-btn" onclick="addSpecRow()">+ Add Specification</button>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn" onclick="saveProduct()">Save Product</button>
+        <button class="modal-btn outline" onclick="closeProductModal()" style="border-color:rgba(138,134,128,0.3);color:var(--muted);">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast">
   <div class="toast-icon" id="toastIcon">✦</div>
@@ -362,14 +508,16 @@
 
 <script>
   let allOrders=[], activeFilter='';
+  let allProducts=[], allCategories=[], prodFilter='', prodEditId=null;
 
-  const ALL_SECTIONS = ['dashboard','orders','reviews','messages','newsletter'];
+  const ALL_SECTIONS = ['dashboard','orders','reviews','messages','newsletter','products'];
   const SECTION_TITLES = {
     dashboard: 'Dashboard <span>Overview</span>',
     orders:    'Orders <span>Management</span>',
     reviews:   'Reviews <span>Moderation</span>',
     messages:  'Messages <span>Contact</span>',
-    newsletter:'Newsletter <span>Subscribers</span>'
+    newsletter:'Newsletter <span>Subscribers</span>',
+    products:  'Products <span>Catalog</span>'
   };
 
   function showSection(section, el, filter=''){
@@ -383,6 +531,7 @@
     if(section==='orders'){ activeFilter=filter; applyFilters(); }
     if(section==='reviews'){ loadReviews(); }
     if(section==='messages'||section==='newsletter'){ loadEngagementStats(); }
+    if(section==='products'){ loadProducts(); loadCategories(); }
   }
 
   function setFilter(btn,status){
@@ -592,6 +741,194 @@
   function fmtStatus(s){return{pending:'Pending',confirmed:'Confirmed',in_production:'In Production',shipped:'Shipped',delivered:'Delivered',cancelled:'Cancelled'}[s]||s;}
   function fmtDate(d){return d?new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—';}
   function fmtDateLong(d){return d?new Date(d).toLocaleString('en-IN',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';}
+
+  // ── Products ────────────────────────────────────────────────
+  function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+  async function loadCategories(){
+    try{
+      const data=await fetch('/api/categories').then(r=>r.json());
+      if(data.success) allCategories=data.data||[];
+    }catch(e){console.error('loadCategories:',e);}
+  }
+
+  async function loadProducts(){
+    const tbody=document.getElementById('productsTableBody');
+    if(!tbody) return;
+    tbody.innerHTML='<tr class="loading-row"><td colspan="7"><div class="dots"><span></span><span></span><span></span></div></td></tr>';
+    try{
+      const data=await fetch('/api/products?limit=100&show_inactive=true').then(r=>r.json());
+      if(!data.success) throw new Error(data.error);
+      allProducts=data.data.products||[];
+      filterProducts();
+      const badge=document.getElementById('productsBadge');
+      if(badge){badge.textContent=allProducts.length;badge.style.display='';}
+    }catch(e){
+      tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--cancelled)">Failed to load: ${e.message}</td></tr>`;
+    }
+  }
+
+  function setProdFilter(btn,filter){
+    document.querySelectorAll('.prod-filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    prodFilter=filter; filterProducts();
+  }
+
+  function filterProducts(){
+    const q=(document.getElementById('productSearch')?.value||'').toLowerCase();
+    let f=allProducts;
+    if(prodFilter==='active') f=f.filter(p=>p.is_active);
+    else if(prodFilter==='inactive') f=f.filter(p=>!p.is_active);
+    else if(prodFilter==='featured') f=f.filter(p=>p.is_featured);
+    if(q) f=f.filter(p=>p.name.toLowerCase().includes(q)||(p.category_name||'').toLowerCase().includes(q));
+    renderProductsTable(f);
+  }
+
+  function renderProductsTable(list){
+    list=list!==undefined?list:allProducts;
+    const tbody=document.getElementById('productsTableBody');
+    const count=document.getElementById('prodCount');
+    if(count) count.textContent=`${list.length} product${list.length!==1?'s':''}`;
+    if(!list.length){
+      tbody.innerHTML='<tr><td colspan="7"><div class="table-empty"><div class="empty-icon">📦</div>No products found.</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML=list.map(p=>`
+      <tr>
+        <td><div style="font-size:0.88rem;">${p.icon?escHtml(p.icon)+' ':''}${escHtml(p.name)}</div><div class="td-muted">${escHtml(p.slug)}</div></td>
+        <td class="td-muted">${escHtml(p.category_name||'—')}</td>
+        <td style="font-size:0.88rem;">₹${Number(p.price).toLocaleString('en-IN')}</td>
+        <td class="td-muted">${p.stock_quantity??0}</td>
+        <td>${p.is_featured?'<span style="color:var(--gold)">★ Yes</span>':'<span style="color:var(--muted)">—</span>'}</td>
+        <td><span class="status-badge ${p.is_active?'status-delivered':'status-cancelled'}">${p.is_active?'Active':'Inactive'}</span></td>
+        <td>
+          <button class="action-btn" onclick="openProductModal(${p.id})">Edit</button>
+          <button class="action-btn danger" onclick="deleteProduct(${p.id},event)">Delete</button>
+        </td>
+      </tr>`).join('');
+  }
+
+  async function openProductModal(id){
+    prodEditId=id||null;
+    const product=id?allProducts.find(p=>p.id===id):null;
+
+    // Title
+    const title=document.getElementById('prodModalTitle');
+    title.innerHTML=id?`Edit <em style="color:var(--gold-light)">#${id}</em>`:'New <em style="color:var(--gold-light)">Product</em>';
+
+    // Load categories if needed
+    if(!allCategories.length) await loadCategories();
+    const sel=document.getElementById('pCategoryId');
+    sel.innerHTML='<option value="">— No Category —</option>'+
+      allCategories.map(c=>`<option value="${c.id}">${escHtml(c.name)}</option>`).join('');
+
+    // Populate form
+    document.getElementById('pName').value=product?.name||'';
+    document.getElementById('pSlug').value=product?.slug||'';
+    document.getElementById('pShortDesc').value=product?.short_description||'';
+    document.getElementById('pDesc').value=product?.description||'';
+    document.getElementById('pIcon').value=product?.icon||'';
+    document.getElementById('pCategoryId').value=product?.category_id||'';
+    document.getElementById('pPrice').value=product?.price||'';
+    document.getElementById('pComparePrice').value=product?.compare_at_price||'';
+    document.getElementById('pStock').value=product?.stock_quantity??0;
+    document.getElementById('pFeatured').checked=product?.is_featured||false;
+    document.getElementById('pActive').checked=product?.is_active!==false;
+
+    // Tags
+    const tags=product?.tags||[];
+    document.getElementById('pTags').value=Array.isArray(tags)?tags.join(', '):'';
+
+    // Specifications
+    const specs=product?.specifications||{};
+    const container=document.getElementById('specsContainer');
+    container.innerHTML='';
+    if(specs&&typeof specs==='object'){
+      Object.entries(specs).forEach(([k,v])=>addSpecRow(k,v));
+    }
+
+    document.getElementById('productModalOverlay').classList.add('open');
+  }
+
+  function closeProductModal(e){
+    if(!e||e.target===document.getElementById('productModalOverlay'))
+      document.getElementById('productModalOverlay').classList.remove('open');
+  }
+
+  function autoSlug(){
+    if(prodEditId) return; // don't overwrite slug when editing
+    const name=document.getElementById('pName').value;
+    document.getElementById('pSlug').value=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  }
+
+  function addSpecRow(key='',val=''){
+    const container=document.getElementById('specsContainer');
+    const row=document.createElement('div');
+    row.className='spec-row';
+    row.innerHTML=`<input class="form-input spec-key" type="text" placeholder="Key (e.g. material)" value="${escHtml(key)}" />`+
+      `<input class="form-input spec-val" type="text" placeholder="Value (e.g. Borosilicate glass)" value="${escHtml(val)}" />`+
+      `<button type="button" class="remove-spec-btn" onclick="this.parentElement.remove()" title="Remove">✕</button>`;
+    container.appendChild(row);
+  }
+
+  function getSpecifications(){
+    const specs={};
+    document.querySelectorAll('#specsContainer .spec-row').forEach(row=>{
+      const k=row.querySelector('.spec-key').value.trim();
+      const v=row.querySelector('.spec-val').value.trim();
+      if(k) specs[k]=v;
+    });
+    return specs;
+  }
+
+  async function saveProduct(){
+    const name=document.getElementById('pName').value.trim();
+    const slug=document.getElementById('pSlug').value.trim();
+    const price=document.getElementById('pPrice').value;
+    if(!name||!slug||price===''){
+      showToast('Validation Error','Name, slug, and price are required.','error'); return;
+    }
+    const parsedPrice=parseFloat(price);
+    if(isNaN(parsedPrice)||parsedPrice<0){
+      showToast('Validation Error','Price must be a valid non-negative number.','error'); return;
+    }
+    const tagsStr=document.getElementById('pTags').value;
+    const tags=tagsStr?tagsStr.split(',').map(t=>t.trim()).filter(Boolean):[];
+    const body={
+      name, slug,
+      description:document.getElementById('pDesc').value.trim()||null,
+      short_description:document.getElementById('pShortDesc').value.trim()||null,
+      category_id:document.getElementById('pCategoryId').value||null,
+      price:parsedPrice,
+      compare_at_price:document.getElementById('pComparePrice').value?parseFloat(document.getElementById('pComparePrice').value):null,
+      icon:document.getElementById('pIcon').value.trim()||null,
+      stock_quantity:parseInt(document.getElementById('pStock').value,10)||0,
+      is_featured:document.getElementById('pFeatured').checked,
+      is_active:document.getElementById('pActive').checked,
+      tags, specifications:getSpecifications()
+    };
+    try{
+      const url=prodEditId?`/api/products/${prodEditId}`:'/api/products';
+      const method=prodEditId?'PATCH':'POST';
+      const data=await fetch(url,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());
+      if(!data.success) throw new Error(data.error);
+      showToast(prodEditId?'Product Updated':'Product Created',`"${name}" saved successfully.`);
+      closeProductModal(); loadProducts();
+    }catch(e){ showToast('Error',e.message,'error'); }
+  }
+
+  async function deleteProduct(id,e){
+    e?.stopPropagation();
+    const product=allProducts.find(p=>p.id===id);
+    if(!confirm(`Delete "${product?.name||'product #'+id}"? This cannot be undone.`)) return;
+    try{
+      const data=await fetch(`/api/products/${id}`,{method:'DELETE'}).then(r=>r.json());
+      if(!data.success) throw new Error(data.error);
+      showToast('Deleted','Product removed successfully.');
+      loadProducts();
+    }catch(e){ showToast('Error',e.message,'error'); }
+  }
+  // ── End Products ─────────────────────────────────────────────
 
   let toastTimer;
   function showToast(title,msg,type='success'){
